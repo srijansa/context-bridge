@@ -1,0 +1,48 @@
+# Java / Maven
+.m2/
+target/
+**/target/
+*.class
+*.jar
+*.war
+
+# Python
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Logs
+*.log
+logs/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Docker / local runtime
+docker-compose.override.yml
+
+#README.md
+README.md
+
+#Documents
+docs/

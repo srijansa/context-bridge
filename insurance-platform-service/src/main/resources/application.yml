@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: insurance-platform-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:9000/realms/secpipeline}
+
+platform:
+  ai-gateway-base-url: ${AI_GATEWAY_BASE_URL:http://localhost:8081}
+  ai-gateway-token: ${AI_GATEWAY_TOKEN:dev-internal-token}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
