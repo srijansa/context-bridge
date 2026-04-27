@@ -31,10 +31,22 @@ jobs:
 
       - name: Install Python gateway
         working-directory: ai-mcp-gateway-service
-        run: pip install -e .[dev]
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
 
       - name: Check Python gateway
         working-directory: ai-mcp-gateway-service
         run: |
           python -m compileall app
           ruff check app
+          pytest
+          pip-audit
+
+      - name: Scan containers
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true

@@ -18,4 +18,9 @@ public class AuditLogger {
         audit.info("event=workflow_ai_completed correlationId={} workflowType={} status={} timestamp={}",
                 correlationId, workflowType, status, Instant.now());
     }
+
+    public void workflowFailed(String correlationId, String workflowType, String reason) {
+        audit.warn("event=workflow_ai_failed correlationId={} workflowType={} reason={} timestamp={}",
+                correlationId, workflowType, reason, Instant.now());
+    }
 }

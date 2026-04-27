@@ -5,6 +5,10 @@ target/
 *.class
 *.jar
 *.war
+**/surefire-reports/
+**/failsafe-reports/
+**/*.dump
+**/*.dumpstream
 
 # Python
 .venv/
@@ -20,6 +24,9 @@ build/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # Environment / secrets
 .env
@@ -43,6 +50,3 @@ docker-compose.override.yml
 
 #README.md
 README.md
-
-#Documents
-docs/

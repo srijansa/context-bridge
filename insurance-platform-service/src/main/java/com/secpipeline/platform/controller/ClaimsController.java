@@ -22,6 +22,6 @@ public class ClaimsController {
     @PostMapping("/summarize")
     @PreAuthorize("hasRole('CLAIMS_ADJUSTER')")
     public AiAssistResponse summarize(@Valid @RequestBody AiAssistRequest request) {
-        return workflowAiService.invokeGateway(request, "CLAIMS_ADJUSTER");
+        return workflowAiService.invokeGateway(request, "CLAIMS_ADJUSTER", "claims");
     }
 }

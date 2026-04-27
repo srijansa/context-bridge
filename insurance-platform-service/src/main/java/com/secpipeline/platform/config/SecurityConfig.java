@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,6 +21,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/api/underwriting/**").hasRole("UNDERWRITER")
@@ -34,7 +37,7 @@ public class SecurityConfig {
     Converter<Jwt, AbstractAuthenticationToken> jwtAuthoritiesConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> Stream.concat(
-                        roles(jwt).stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)),
+                        roles(jwt).stream().map(role -> new SimpleGrantedAuthority("ROLE_" + normalizeRole(role))),
                         scopes(jwt).stream().map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope)))
                 .map(GrantedAuthority.class::cast)
                 .toList());
@@ -52,5 +55,9 @@ public class SecurityConfig {
     private Collection<String> scopes(Jwt jwt) {
         String scope = jwt.getClaimAsString("scope");
         return scope == null || scope.isBlank() ? List.of() : Stream.of(scope.split(" ")).toList();
+    }
+
+    private String normalizeRole(String role) {
+        return role.startsWith("ROLE_") ? role.substring("ROLE_".length()) : role;
     }
 }

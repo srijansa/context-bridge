@@ -22,6 +22,6 @@ public class UnderwritingController {
     @PostMapping("/assist")
     @PreAuthorize("hasRole('UNDERWRITER')")
     public AiAssistResponse assist(@Valid @RequestBody AiAssistRequest request) {
-        return workflowAiService.invokeGateway(request, "UNDERWRITER");
+        return workflowAiService.invokeGateway(request, "UNDERWRITER", "underwriting");
     }
 }
