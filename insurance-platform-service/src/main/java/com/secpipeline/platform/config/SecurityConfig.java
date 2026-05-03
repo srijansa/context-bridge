@@ -2,12 +2,14 @@ package com.secpipeline.platform.config;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +18,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -48,16 +51,27 @@ public class SecurityConfig {
     private Collection<String> roles(Jwt jwt) {
         Object roles = jwt.getClaims().getOrDefault("roles", jwt.getClaims().get("groups"));
         return roles instanceof Collection<?> values
-                ? values.stream().map(String::valueOf).toList()
+                ? values.stream()
+                        .map(String::valueOf)
+                        .map(this::normalizeRole)
+                        .filter(role -> !role.isBlank())
+                        .toList()
                 : List.of();
     }
 
     private Collection<String> scopes(Jwt jwt) {
         String scope = jwt.getClaimAsString("scope");
-        return scope == null || scope.isBlank() ? List.of() : Stream.of(scope.split(" ")).toList();
+        return scope == null || scope.isBlank()
+                ? List.of()
+                : Stream.of(scope.split(" "))
+                        .map(String::trim)
+                        .filter(value -> !value.isBlank())
+                        .toList();
     }
 
     private String normalizeRole(String role) {
-        return role.startsWith("ROLE_") ? role.substring("ROLE_".length()) : role;
+        String normalized = role.trim();
+        normalized = normalized.startsWith("ROLE_") ? normalized.substring("ROLE_".length()) : normalized;
+        return normalized.toUpperCase(Locale.ROOT);
     }
 }
