@@ -44,6 +44,8 @@ logs/
 .idea/
 .vscode/
 .DS_Store
+docs/
+docs/architecture.md
 
 # Docker / local runtime
 docker-compose.override.yml

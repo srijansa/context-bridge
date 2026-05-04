@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import base64
-import json
+import hmac
 import os
 
 from fastapi import Header, HTTPException, status
@@ -15,33 +14,24 @@ def require_internal_token(authorization: str | None = Header(default=None)) -> 
         )
 
     token = authorization.removeprefix("Bearer ").strip()
-    expected_token = os.getenv("INTERNAL_SERVICE_TOKEN", "dev-internal-token")
-    if token == expected_token:
-        return
-
-    scopes = _unsafe_read_jwt_scopes(token)
-    if "ai.invoke" in scopes:
+    expected_token = _expected_internal_token()
+    if hmac.compare_digest(token, expected_token):
         return
 
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="Token must include ai.invoke scope",
+        detail="Invalid internal service token",
     )
 
 
-def _unsafe_read_jwt_scopes(token: str) -> set[str]:
-    """Dev-only JWT scope extraction. Production should verify signature and issuer."""
-    parts = token.split(".")
-    if len(parts) < 2:
-        return set()
+def _expected_internal_token() -> str:
+    token = os.getenv("INTERNAL_SERVICE_TOKEN")
+    app_env = os.getenv("APP_ENV", "local").lower()
 
-    try:
-        padded = parts[1] + "=" * (-len(parts[1]) % 4)
-        payload = json.loads(base64.urlsafe_b64decode(padded))
-    except (ValueError, json.JSONDecodeError):
-        return set()
+    if token:
+        return token
 
-    scope = payload.get("scope", "")
-    scopes = set(str(scope).split())
-    scopes.update(map(str, payload.get("scp", [])))
-    return scopes
+    if app_env == "local":
+        return "dev-internal-token"
+
+    raise RuntimeError("INTERNAL_SERVICE_TOKEN must be configured outside local environments")
