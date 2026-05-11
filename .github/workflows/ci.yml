@@ -24,6 +24,17 @@ jobs:
       - name: Build
         run: mvn -B -Dmaven.repo.local=.m2/repository verify
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Check Go MCP gateway
+        working-directory: go-mcp-gateway-service
+        run: |
+          test -z "$(gofmt -l .)"
+          go test ./...
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:

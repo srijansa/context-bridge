@@ -52,3 +52,9 @@ docker-compose.override.yml
 
 #README.md
 README.md
+
+# Folders
+contracts/
+
+# Test 
+go-mcp-gateway-service/main_test.go
